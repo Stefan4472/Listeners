@@ -1,24 +1,28 @@
 import javax.swing.*;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 
 public class GUI extends JFrame {
     private JLabel info = new JLabel("Text will be displayed here");
-    private JTextField text_box = new JTextField(10);
+    private JTextField text_box = new JTextField(15);
     private JLabel caret_info = new JLabel("Caret info will be displayed here");
+    private JLabel change_info = new JLabel("Change info will be displayed here");
     public GUI() {
-        setTitle("Textbox");
-        setSize(300, 200);
-        setLocationRelativeTo(null); /* centers window on screen */
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        //info.setFont(new Font("Georgia", Font.PLAIN, 14));
-        JPanel pnl = (JPanel) getContentPane();
-        //pnl.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        pnl.add(text_box, BorderLayout.NORTH);
-        pnl.add(info, BorderLayout.CENTER);
-        pnl.add(caret_info, BorderLayout.SOUTH);
+        JFrame frame = new JFrame();
+        frame.setLayout(new FlowLayout(FlowLayout.LEADING));
+        frame.add(text_box);
+        frame.add(info);
+        frame.add(caret_info);
+        frame.add(change_info);
+        frame.setTitle("Textbox");
+        frame.setSize(225, 150);
+        frame.setComponentOrientation(
+                ComponentOrientation.UNKNOWN);
+        frame.setVisible(true);
         pack();
+        frame.setLocationRelativeTo(null);
         text_box.addCaretListener(new CaretListener() {
             @Override
             public void caretUpdate(CaretEvent e) {
@@ -36,20 +40,22 @@ public class GUI extends JFrame {
                 }
             }
         });
+        text_box.getDocument().addDocumentListener(new MyDocumentListener());
     }
     public void setInfo(String s) {info.setText(s);}
     public void setCaretInfo(String s) {caret_info.setText(s);}
     public String getText() {return text_box.getText();}
     public static void main(String[] args) {
+        GUI gui = new GUI();
 
-        EventQueue.invokeLater(new Runnable() {
+        /*EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
                 GUI gui = new GUI();
 
                 gui.setVisible(true);
             }
-        });
+        }); */
     }
 
 }
