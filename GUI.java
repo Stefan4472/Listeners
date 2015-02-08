@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 public class GUI extends JFrame {
     private JLabel info = new JLabel("Info: ");
@@ -23,12 +24,14 @@ public class GUI extends JFrame {
         JFrame frame = new JFrame();
         frame.setLayout(new FlowLayout(FlowLayout.LEADING));
         frame.add(text_box);
+        text_box.requestFocusInWindow(); /* gives text_box focus */
         frame.add(go_button);
         frame.add(info);
         frame.add(caret_info);
         frame.add(change_info);
         frame.add(enter_info);
         frame.add(enter_info);
+        frame.add(undo_info);
         frame.add(undo_button);
         frame.add(redo_button);
         frame.setTitle("Textbox");
@@ -73,7 +76,8 @@ public class GUI extends JFrame {
         text_box.addActionListener(new ActionListener() { /* also check out JRootPane */
             @Override
             public void actionPerformed(ActionEvent e) {
-                change_info.setText("Enter key pressed");
+                System.out.println("Enter key pressed - routing to button");
+                go_button.doClick(); /* simulates user clicking button */
             }
         });
         go_button.addActionListener(new ActionListener() {
@@ -86,7 +90,8 @@ public class GUI extends JFrame {
             @Override
             public void undoableEditHappened(UndoableEditEvent e) {
                 undo.addEdit(e.getEdit());
-               // undoAction.updateUndoState();
+                undo_info.setText("Registered undoable event");
+               // undoAction.updateUndoState(); /* used for menus(?) */
                // redoAction.updateRedoState();
             }
         });
@@ -95,7 +100,7 @@ public class GUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     undo.undo();
-                    undo_info.setText("Undid");
+                    undo_info.setText("Undo performed");
                 } catch (CannotUndoException ex) {
                     undo_info.setText("Unable to undo: " + ex);
                     ex.printStackTrace();
@@ -107,12 +112,33 @@ public class GUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     undo.redo();
+                    undo_info.setText("Redo performed");
                 } catch (CannotRedoException ex) {
                     undo_info.setText("Unable to redo: " + ex);
                     ex.printStackTrace();
                 }
             }
         });
+        text_box.addKeyListener(new KeyListener() { // not sure if this is the best way to do this
+            @Override
+            public void keyTyped(KeyEvent e) {}
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                /* check to see if 'Z' was pressed as well as CTRL */
+                if((e.getKeyCode() == KeyEvent.VK_Z) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0))
+                    undo_button.doClick(); /* click undo button */
+                else if((e.getKeyCode() == KeyEvent.VK_Y) && ((e.getModifiers() * KeyEvent.CTRL_MASK) != 0))
+                    redo_button.doClick(); /* click redo button (CTRL-Y) */
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {}
+        });
+       // InputMap inputMap = text_box.getInputMap();
+       // KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_Z,
+        //        Event.CTRL_MASK);
+        //inputMap.put(key, undo_button.actionPerformed());
     }
     public void setCaretInfo(String s) {caret_info.setText(s);}
     public String getText() {return text_box.getText();}
